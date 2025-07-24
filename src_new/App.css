@@ -1363,7 +1363,9 @@
 
 /* Experience and Education Item Enhancements */
 .experience-item,
-.education-item {
+.education-item,
+.certification-item,
+.achievement-item {
   padding: 20px;
   margin-bottom: 16px;
   background: var(--item-bg, #fafafa);
@@ -1374,7 +1376,9 @@
 }
 
 .experience-item:hover,
-.education-item:hover {
+.education-item:hover,
+.certification-item:hover,
+.achievement-item:hover {
   background: var(--item-hover-bg, #f0f0f0);
   border-left-color: var(--accent-color, #667eea);
   transform: translateX(4px);
@@ -1474,12 +1478,35 @@
 .netflix-theme .resume-section {
   --accent-color: #e50914;
   --secondary-color: #f40612;
-  --surface-color: #ffffff;
-  --heading-color: #333333;
-  --item-bg: #fef2f2;
-  --item-hover-bg: #fecaca;
-  --skill-bg: #fee2e2;
-  --skill-text: #dc2626;
+  --surface-color: #141414;
+  --heading-color: #ffffff;
+  --item-bg: #1a1a1a;
+  --item-hover-bg: #262626;
+  --skill-bg: #2a2a2a;
+  --skill-text: #ffffff;
+  --text-color: #ffffff;
+  --text-secondary: #e5e5e5;
+}
+
+/* Netflix theme text color overrides for better contrast */
+.netflix-theme .resume-section,
+.netflix-theme .resume-section * {
+  color: #ffffff;
+}
+
+.netflix-theme .resume-section .summary-text,
+.netflix-theme .resume-section .responsibilities li,
+.netflix-theme .resume-section .cert-description,
+.netflix-theme .resume-section .achievement-description {
+  color: #f5f5f5;
+}
+
+.netflix-theme .resume-section .contact-item,
+.netflix-theme .resume-section .dates,
+.netflix-theme .resume-section .gpa,
+.netflix-theme .resume-section .coursework,
+.netflix-theme .resume-section .credential-id {
+  color: #e5e5e5;
 }
 
 .google-theme .resume-section {
@@ -1497,11 +1524,65 @@
   --accent-color: #667eea;
   --secondary-color: #764ba2;
   --surface-color: #2d3748;
-  --heading-color: #e2e8f0;
+  --heading-color: #f1f5f9;
   --item-bg: #4a5568;
   --item-hover-bg: #718096;
   --skill-bg: #4a5568;
-  --skill-text: #e2e8f0;
+  --skill-text: #f1f5f9;
+  --text-color: #f1f5f9;
+  --text-secondary: #e2e8f0;
+}
+
+/* Dark theme text color overrides for better contrast */
+.dark-theme .resume-section,
+.dark-theme .resume-section * {
+  color: #f1f5f9;
+}
+
+.dark-theme .resume-section .summary-text,
+.dark-theme .resume-section .responsibilities li,
+.dark-theme .resume-section .cert-description,
+.dark-theme .resume-section .achievement-description {
+  color: #e2e8f0;
+}
+
+.dark-theme .resume-section .contact-item,
+.dark-theme .resume-section .dates,
+.dark-theme .resume-section .gpa,
+.dark-theme .resume-section .coursework,
+.dark-theme .resume-section .credential-id {
+  color: #cbd5e1;
+}
+
+/* Enhanced hover states for better contrast */
+.netflix-theme .experience-item:hover,
+.netflix-theme .education-item:hover,
+.netflix-theme .certification-item:hover,
+.netflix-theme .achievement-item:hover {
+  background: #262626;
+  color: #ffffff;
+}
+
+.netflix-theme .experience-item:hover *,
+.netflix-theme .education-item:hover *,
+.netflix-theme .certification-item:hover *,
+.netflix-theme .achievement-item:hover * {
+  color: #ffffff;
+}
+
+.dark-theme .experience-item:hover,
+.dark-theme .education-item:hover,
+.dark-theme .certification-item:hover,
+.dark-theme .achievement-item:hover {
+  background: #4a5568;
+  color: #f1f5f9;
+}
+
+.dark-theme .experience-item:hover *,
+.dark-theme .education-item:hover *,
+.dark-theme .certification-item:hover *,
+.dark-theme .achievement-item:hover * {
+  color: #f1f5f9;
 }
 
 /* Animation Keyframes */

@@ -194,6 +194,14 @@ If issues arise, this checkpoint can be restored by:
 - Mobile experience fully functional
 - Download feature generates valid HTML
 - Animations perform smoothly
+- **Fixed**: Dark and Netflix theme text contrast issues resolved
+
+### Recent Fixes
+- **Text Contrast Enhancement**: Improved font colors for Dark and Netflix themes
+  - Dark theme: Enhanced white/light gray text on dark backgrounds
+  - Netflix theme: Pure white text on dark Netflix-style backgrounds
+  - Added proper hover states with maintained visibility
+  - Fixed section titles and content text contrast ratios
 
 ## 📝 Notes for Future Development
 

@@ -695,7 +695,7 @@ p {
 .dark-theme .resume-template .responsibilities li,
 .dark-theme .resume-template .cert-description,
 .dark-theme .resume-template .achievement-description {
-  color: #cbd5e1;
+  color: #e2e8f0;
 }
 
 .dark-theme .resume-template .contact-item,
@@ -703,7 +703,35 @@ p {
 .dark-theme .resume-template .gpa,
 .dark-theme .resume-template .coursework,
 .dark-theme .resume-template .credential-id {
-  color: #94a3b8;
+  color: #cbd5e1;
+}
+
+.dark-theme .resume-template .position,
+.dark-theme .resume-template .company,
+.dark-theme .resume-template .school,
+.dark-theme .resume-template .degree,
+.dark-theme .resume-template .cert-name,
+.dark-theme .resume-template .achievement-title {
+  color: #f8fafc;
+}
+
+.dark-theme .resume-template .section-title {
+  color: #f1f5f9;
+}
+
+/* Enhanced dark theme hover states */
+.dark-theme .resume-section:hover .section-title {
+  color: #667eea;
+}
+
+.dark-theme .experience-item:hover,
+.dark-theme .education-item:hover {
+  color: #f8fafc;
+}
+
+.dark-theme .experience-item:hover .position,
+.dark-theme .education-item:hover .degree {
+  color: #667eea;
 }
 
 .amazon-theme .resume-template {
@@ -739,7 +767,7 @@ p {
 .netflix-theme .resume-template .responsibilities li,
 .netflix-theme .resume-template .cert-description,
 .netflix-theme .resume-template .achievement-description {
-  color: #e5e5e5;
+  color: #f5f5f5;
 }
 
 .netflix-theme .resume-template .contact-item,
@@ -747,7 +775,41 @@ p {
 .netflix-theme .resume-template .gpa,
 .netflix-theme .resume-template .coursework,
 .netflix-theme .resume-template .credential-id {
-  color: #b3b3b3;
+  color: #e5e5e5;
+}
+
+.netflix-theme .resume-template .position,
+.netflix-theme .resume-template .company,
+.netflix-theme .resume-template .school,
+.netflix-theme .resume-template .degree,
+.netflix-theme .resume-template .cert-name,
+.netflix-theme .resume-template .achievement-title {
+  color: #ffffff;
+}
+
+.netflix-theme .resume-template .section-title {
+  color: #ffffff;
+}
+
+/* Enhanced Netflix theme hover states */
+.netflix-theme .resume-section:hover .section-title {
+  color: #ff4757;
+}
+
+.netflix-theme .experience-item:hover,
+.netflix-theme .education-item:hover {
+  color: #ffffff;
+  background: #1a1a1a;
+}
+
+.netflix-theme .experience-item:hover .position,
+.netflix-theme .education-item:hover .degree {
+  color: #e50914;
+}
+
+.netflix-theme .experience-item:hover .company,
+.netflix-theme .education-item:hover .school {
+  color: #ff4757;
 }
 
 .netflix-theme .resume-template .full-name {
