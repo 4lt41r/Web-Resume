@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileEdit, Download, Settings, Users, RotateCcw, Home } from 'lucide-react';
+import { FileEdit, Download, Settings, Users, RotateCcw, Home, HelpCircle } from 'lucide-react';
 import JSZip from 'jszip';
 import ResumeForm from './components/ResumeForm';
 import ResumeTemplate from './components/ResumeTemplate';
 import LoadingScreen from './components/LoadingScreen';
 import AdminPanel from './components/AdminPanel';
+import Tutorial from './components/Tutorial';
+import SwipeHandler from './components/SwipeHandler';
 import './App.css';
 
 const App = () => {
@@ -16,6 +18,7 @@ const App = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showNewTutorial, setShowNewTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const previewRef = useRef(null);
@@ -46,6 +49,7 @@ const App = () => {
   // Theme options
   const themes = [
     { value: 'professional', label: 'Professional' },
+    { value: 'classy', label: 'Default Classy' },
     { value: 'dark', label: 'Dark Mode' },
     { value: 'amazon', label: 'Amazon Style' },
     { value: 'netflix', label: 'Netflix Style' },
@@ -137,6 +141,19 @@ const App = () => {
     }
   };
 
+  // Enhanced swipe handlers for center screen gestures
+  const handleSwipeLeft = () => {
+    if (isMobile && !showSidebar && !showPreview) {
+      setShowPreview(true);
+    }
+  };
+
+  const handleSwipeRight = () => {
+    if (isMobile && !showSidebar && !showPreview) {
+      setShowNewTutorial(true);
+    }
+  };
+
   // Tutorial functions
   const nextTutorialStep = () => {
     if (tutorialStep < tutorialSteps.length - 1) {
@@ -161,13 +178,30 @@ const App = () => {
     closeTutorial();
   };
 
-  // Initialize loading screen
+  // Initialize loading screen with realistic delay
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Simulate actual app initialization with multiple stages
+    const initializeApp = async () => {
+      // Stage 1: Initial setup (1000ms)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Stage 2: Load resources (1500ms)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Stage 3: Initialize components (1500ms)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Stage 4: Setup themes and templates (1000ms)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Stage 5: Finalize and prepare launch (1000ms)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Total: 6 seconds for a comprehensive, professional loading experience
       setIsLoading(false);
-    }, 2000);
+    };
 
-    return () => clearTimeout(timer);
+    initializeApp();
   }, []);
 
   // Theme change handler
@@ -181,6 +215,9 @@ const App = () => {
     switch (newTheme) {
       case 'dark':
         root.className = 'dark-theme';
+        break;
+      case 'classy':
+        root.className = 'classy-theme';
         break;
       case 'amazon':
         root.className = 'amazon-theme';
@@ -469,6 +506,11 @@ body {
 .experience-item:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+  background: var(--section-hover-bg);
+}
+
+.experience-item:hover .experience-title {
+  color: var(--accent-color);
 }
 
 .experience-header {
@@ -542,6 +584,11 @@ body {
 .education-item:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+  background: var(--section-hover-bg);
+}
+
+.education-item:hover .education-degree {
+  color: var(--accent-color);
 }
 
 .education-header {
@@ -598,6 +645,11 @@ body {
 .skill-category:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+  background: var(--section-hover-bg);
+}
+
+.skill-category:hover .skill-category-title {
+  color: var(--accent-color);
 }
 
 .skill-category-title {
@@ -631,6 +683,31 @@ body {
   filter: brightness(1.1);
 }
 
+/* Netflix theme specific skill styling */
+.netflix-theme .skill-item {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #333333;
+}
+
+.netflix-theme .skill-item:hover {
+  background: var(--accent-color);
+  color: var(--header-text);
+  border-color: var(--accent-color);
+  filter: none;
+}
+
+/* Dark theme specific skill styling */
+.dark-theme .skill-item {
+  background: #4a5568;
+  color: #e2e8f0;
+}
+
+.dark-theme .skill-item:hover {
+  background: var(--accent-color);
+  color: var(--header-text);
+}
+
 /* Certifications Section */
 .certification-item {
   margin-bottom: clamp(0.75rem, 2vw, 1rem);
@@ -645,6 +722,11 @@ body {
 .certification-item:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+  background: var(--section-hover-bg);
+}
+
+.certification-item:hover .certification-name {
+  color: var(--accent-color);
 }
 
 .certification-header {
@@ -696,6 +778,11 @@ body {
 .achievement-item:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+  background: var(--section-hover-bg);
+}
+
+.achievement-item:hover .achievement-title {
+  color: var(--accent-color);
 }
 
 .achievement-header {
@@ -1461,6 +1548,19 @@ Package created by: Resume Builder Pro
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Enhanced Swipe Handler for center screen gestures */}
+      <SwipeHandler 
+        onSwipeLeft={handleSwipeLeft}
+        onSwipeRight={handleSwipeRight}
+        threshold={80}
+        restraint={100}
+      />
+
+      {/* New Tutorial Component */}
+      <Tutorial 
+        isOpen={showNewTutorial}
+        onClose={() => setShowNewTutorial(false)}
+      />
       {/* Tutorial Overlay */}
       {showTutorial && (
         <div className="tutorial-overlay">
@@ -1582,6 +1682,17 @@ Package created by: Resume Builder Pro
                   >
                     <Settings size={16} />
                     Admin Panel
+                  </button>
+
+                  <button 
+                    className="sidebar-btn"
+                    onClick={() => {
+                      setShowNewTutorial(true);
+                      setShowSidebar(false);
+                    }}
+                  >
+                    <HelpCircle size={16} />
+                    Tutorial Guide
                   </button>
                 </div>
               </div>
@@ -1726,6 +1837,15 @@ Package created by: Resume Builder Pro
                   >
                     <RotateCcw size={16} />
                     <span>Reset</span>
+                  </button>
+
+                  <button 
+                    className="btn"
+                    onClick={() => setShowNewTutorial(true)}
+                    title="Tutorial Guide"
+                  >
+                    <HelpCircle size={16} />
+                    <span>Tutorial</span>
                   </button>
 
                   <button 
