@@ -1,6 +1,189 @@
 /* Import mobile styles */
 @import url('./mobile.css');
 
+/* Minimal Header Styles */
+.app-header-minimal {
+  position: static;
+  z-index: 100;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+  width: 100%;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.logo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.logo-icon {
+  position: absolute;
+  transition: all 0.3s ease;
+}
+
+.primary-icon {
+  color: #ffffff;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.accent-icon {
+  color: #ffd700;
+  z-index: 2;
+  left: 65%;
+  top: 20%;
+  transform: translate(-50%, -50%);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.sparkle-icon {
+  color: #ffffff;
+  z-index: 1;
+  left: 25%;
+  top: 75%;
+  transform: translate(-50%, -50%);
+  animation: sparkleRotate 3s linear infinite;
+}
+
+.app-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes sparkleRotate {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(180deg);
+  }
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.logo-container:hover .primary-icon {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.logo-container:hover .accent-icon {
+  animation-duration: 1s;
+}
+
+.logo-container:hover .sparkle-icon {
+  animation-duration: 1.5s;
+}
+
+/* Responsive adjustments for header */
+@media (max-width: 768px) {
+  .app-header-minimal {
+    padding: 0.75rem 0;
+  }
+  
+  .header-brand {
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+  }
+  
+  .logo-icon-group {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .primary-icon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .accent-icon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .sparkle-icon {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .app-title {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header-minimal {
+    padding: 0.5rem 0;
+  }
+  
+  .header-brand {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .logo-icon-group {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .primary-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .accent-icon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .sparkle-icon {
+    width: 8px;
+    height: 8px;
+  }
+}
+
 /* App Layout Styles */
 .app {
   display: flex;
@@ -1623,6 +1806,39 @@
   white-space: normal !important;
 }
 
+/* Resume Template Body Padding - Ensure content doesn't stick to borders */
+.resume-template {
+  padding: clamp(16px, 3vw, 24px) !important;
+  box-sizing: border-box !important;
+  background: var(--surface-color, #ffffff) !important;
+  min-height: auto; /* Allow natural height expansion */
+  height: 100%; /* Take full height of container */
+  width: 100%;
+  margin: 0;
+}
+
+/* Responsive padding adjustments for different screen sizes */
+@media (max-width: 480px) {
+  .resume-template {
+    padding: clamp(12px, 2.5vw, 16px) !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .resume-template {
+    padding: clamp(20px, 3.5vw, 32px) !important;
+  }
+}
+
+/* Ensure first and last sections have proper spacing */
+.resume-template .resume-section:first-child {
+  margin-top: 0;
+}
+
+.resume-template .resume-section:last-child {
+  margin-bottom: 0;
+}
+
 .google-theme .resume-section {
   --accent-color: #4285f4;
   --secondary-color: #34a853;
@@ -2247,10 +2463,12 @@
 /* Resume Template Responsive Styles for Mobile Preview */
 @media (max-width: 768px) {
   .resume-template {
-    transform: scale(0.8);
+    /* Remove transform scaling - handled by container */
+    transform: none;
     transform-origin: top center;
-    width: 125%;
-    margin: 0 -12.5%;
+    width: 100%;
+    margin: 0;
+    height: 100%; /* Take full container height */
   }
   
   .resume-template * {

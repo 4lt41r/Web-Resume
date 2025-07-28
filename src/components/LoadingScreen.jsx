@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FileEdit, Zap, Star, Sparkles, Maximize } from 'lucide-react';
+import { FileEdit, Star, Sparkles } from 'lucide-react';
 
-const LoadingScreen = ({ isFullscreen = false }) => {
+const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
   const [loadingStatus, setLoadingStatus] = useState('Initializing application...');
@@ -15,6 +15,22 @@ const LoadingScreen = ({ isFullscreen = false }) => {
     "📝 Keep your resume concise and well-formatted",
     "🌟 Use the live preview to see real-time changes"
   ];
+
+  useEffect(() => {
+    // Prevent scrolling on body when loading screen is active
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    
+    return () => {
+      // Restore scrolling when component unmounts
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, []);
 
   useEffect(() => {
     const loadingStages = [
@@ -34,7 +50,7 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           clearInterval(progressInterval);
           return 100;
         }
-        const newProgress = prev + 0.67; // This will reach 100% in about 6 seconds (100/0.67 * 40ms ≈ 6000ms)
+        const newProgress = prev + 1.34; // This will reach 100% in about 3 seconds (100/1.34 * 40ms ≈ 3000ms)
         
         // Update loading status based on progress
         const currentStage = loadingStages
@@ -70,19 +86,13 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             <div className="logo-sparkles">
               <Sparkles className="sparkle sparkle-1" size={16} />
               <Star className="sparkle sparkle-2" size={12} />
-              <Zap className="sparkle sparkle-3" size={14} />
+              <FileEdit className="sparkle sparkle-3" size={14} />
             </div>
           </div>
           <h1 className="loading-title">Resume Builder Pro</h1>
           <p className="loading-subtitle">Creating your professional resume...</p>
           <div className="loading-status">
             <p className="status-text">{loadingStatus}</p>
-            {isFullscreen && (
-              <div className="fullscreen-indicator">
-                <Maximize size={16} />
-                <span>Fullscreen Mode</span>
-              </div>
-            )}
           </div>
           <div className="creator-credit">
             <p className="presented-by">Presented by</p>
@@ -140,7 +150,15 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           </div>
           <div className="feature-item">
             <div className="feature-icon">📄</div>
-            <span>HTML Export</span>
+            <span>PDF Export</span>
+          </div>
+          <div className="feature-item">
+            <div className="feature-icon">💾</div>
+            <span>Auto Save</span>
+          </div>
+          <div className="feature-item">
+            <div className="feature-icon">📱</div>
+            <span>Mobile Ready</span>
           </div>
         </div>
 
@@ -160,8 +178,8 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           width: 100vw;
           height: 100vh;
           height: 100dvh; /* Dynamic viewport height for mobile browsers */
-          min-height: 100vh;
-          min-height: 100dvh;
+          max-height: 100vh;
+          max-height: 100dvh;
           background: 
             radial-gradient(circle at 25% 25%, rgba(106, 90, 205, 0.3) 0%, transparent 60%),
             radial-gradient(circle at 75% 75%, rgba(72, 61, 139, 0.2) 0%, transparent 60%),
@@ -179,6 +197,8 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           overflow: hidden;
           animation: classyScreenGlow 8s ease-in-out infinite;
           will-change: filter;
+          padding: clamp(0.5rem, 2vh, 1rem);
+          box-sizing: border-box;
         }
 
         .loading-screen::before {
@@ -225,11 +245,21 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         .loading-content {
           text-align: center;
           color: white;
+          width: 100%;
           max-width: min(90vw, 600px);
-          width: 90%;
-          padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+          height: fit-content;
+          max-height: calc(100vh - 2rem);
+          max-height: calc(100dvh - 2rem);
+          padding: clamp(0.8rem, 2.5vh, 2rem) clamp(0.8rem, 2.5vw, 2rem);
           position: relative;
           z-index: 10;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          overflow: hidden;
+          box-sizing: border-box;
+          gap: clamp(0.8rem, 2vh, 1.5rem);
           background: 
             linear-gradient(135deg, 
               rgba(15, 15, 35, 0.95) 0%, 
@@ -238,7 +268,7 @@ const LoadingScreen = ({ isFullscreen = false }) => {
               rgba(26, 26, 46, 0.9) 75%, 
               rgba(15, 15, 35, 0.95) 100%
             );
-          border-radius: clamp(16px, 4vw, 32px);
+          border-radius: clamp(12px, 2vw, 24px);
           backdrop-filter: blur(30px);
           border: 1px solid rgba(147, 112, 219, 0.3);
           box-shadow: 
@@ -246,30 +276,34 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             0 8px 32px rgba(106, 90, 205, 0.2),
             inset 0 1px 0 rgba(255, 255, 255, 0.1),
             inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-          /* Removed animation to prevent panning effect */
           will-change: auto;
         }
 
         .loading-header {
-          margin-bottom: 3rem;
+          margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
+          flex-shrink: 0;
+          width: 100%;
         }
 
         .logo-container {
           position: relative;
           display: inline-block;
-          margin-bottom: 1.5rem;
+          margin-bottom: clamp(1rem, 3vh, 2rem);
+          padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
         }
 
         .logo-icon {
           color: #9370db;
-          width: clamp(44px, 8vw, 56px);
-          height: clamp(44px, 8vw, 56px);
+          width: clamp(40px, 7vw, 52px);
+          height: clamp(40px, 7vw, 52px);
           filter: 
             drop-shadow(0 0 12px rgba(147, 112, 219, 0.6)) 
             drop-shadow(0 0 24px rgba(106, 90, 205, 0.4));
           animation: classyPulse 3s ease-in-out infinite;
           transform-origin: center;
           transition: all 0.3s ease;
+          display: block;
+          margin: 0 auto;
         }
 
         .logo-sparkles {
@@ -312,9 +346,9 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .loading-title {
-          font-size: clamp(2rem, 5vw, 3.2rem);
+          font-size: clamp(1.8rem, 4.5vw, 2.8rem);
           font-weight: 300;
-          margin: 0 0 0.8rem 0;
+          margin: clamp(0.5rem, 1.5vh, 1rem) 0 clamp(0.6rem, 1.8vh, 1.2rem) 0;
           background: linear-gradient(135deg, 
             #ffffff 0%, 
             #e6e6fa 25%, 
@@ -330,23 +364,25 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           letter-spacing: clamp(0.5px, 0.4vw, 2.5px);
           text-shadow: 0 0 40px rgba(147, 112, 219, 0.3);
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          line-height: 1.2;
         }
 
         .loading-subtitle {
-          font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+          font-size: clamp(0.8rem, 2.2vw, 1rem);
           opacity: 0.8;
-          margin: 0 0 1.5rem 0;
+          margin: 0 0 clamp(1rem, 2.5vh, 1.8rem) 0;
           font-weight: 400;
           color: #e6e6fa;
           text-shadow: 0 0 8px rgba(230, 230, 250, 0.4);
           animation: classySubtleGlow 4s ease-in-out infinite;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           letter-spacing: clamp(0.2px, 0.1vw, 0.6px);
+          line-height: 1.3;
         }
 
         .loading-status {
-          margin: clamp(1rem, 3vw, 1.2rem) 0;
-          padding: clamp(0.8rem, 2.5vw, 1rem) clamp(1.2rem, 4vw, 1.8rem);
+          margin: clamp(0.8rem, 2vh, 1.5rem) 0;
+          padding: clamp(1rem, 3vw, 1.5rem) clamp(1.5rem, 4.5vw, 2rem);
           background: 
             linear-gradient(135deg, 
               rgba(106, 90, 205, 0.12) 0%, 
@@ -356,7 +392,7 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           border-radius: clamp(12px, 3vw, 16px);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(147, 112, 219, 0.2);
-          min-height: clamp(42px, 12vw, 54px);
+          min-height: clamp(50px, 14vw, 65px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -365,6 +401,8 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             0 1px 3px rgba(147, 112, 219, 0.2),
             inset 0 1px 0 rgba(255, 255, 255, 0.05);
           animation: classyStatusPulse 4s ease-in-out infinite;
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .status-text {
@@ -380,26 +418,10 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .fullscreen-indicator {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          margin-top: 0.5rem;
-          padding: 0.4rem 0.8rem;
-          background: rgba(34, 197, 94, 0.15);
-          border: 1px solid rgba(34, 197, 94, 0.3);
-          border-radius: 20px;
-          font-size: 0.75rem;
-          font-weight: 500;
-          color: #22c55e;
-          backdrop-filter: blur(10px);
-          animation: fullscreenPulse 2s ease-in-out infinite;
-        }
-
         .creator-credit {
-          margin-top: clamp(1.5rem, 4vw, 2rem);
-          padding: clamp(0.8rem, 3vw, 1.2rem) clamp(1.5rem, 5vw, 2rem);
+          margin-top: clamp(1rem, 3vh, 2rem);
+          margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+          padding: clamp(1rem, 3.5vw, 1.5rem) clamp(1.8rem, 5.5vw, 2.5rem);
           background: linear-gradient(135deg, 
             rgba(218, 165, 32, 0.12) 0%, 
             rgba(255, 215, 0, 0.08) 50%, 
@@ -415,6 +437,8 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             0 8px 32px rgba(0, 0, 0, 0.1),
             0 2px 8px rgba(218, 165, 32, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.05);
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .creator-credit::before {
@@ -467,8 +491,9 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .acknowledgment-section {
-          margin-top: clamp(1.5rem, 4vw, 2rem);
-          padding: clamp(1rem, 3.5vw, 1.5rem) clamp(1.5rem, 5vw, 2rem);
+          margin-top: clamp(1rem, 3vh, 2rem);
+          margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+          padding: clamp(1.2rem, 4vw, 1.8rem) clamp(1.8rem, 5.5vw, 2.5rem);
           background: linear-gradient(135deg, 
             rgba(106, 90, 205, 0.12) 0%, 
             rgba(147, 112, 219, 0.08) 50%, 
@@ -484,6 +509,8 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             0 8px 32px rgba(0, 0, 0, 0.1),
             0 2px 8px rgba(147, 112, 219, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.05);
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .acknowledgment-section::before {
@@ -579,8 +606,9 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .progress-container {
-          margin: clamp(1.5rem, 4vw, 2rem) 0;
+          margin: clamp(0.5rem, 1.5vh, 1rem) 0;
           position: relative;
+          flex-shrink: 0;
         }
 
         .progress-bar {
@@ -643,11 +671,12 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .tips-container {
-          margin: clamp(1.5rem, 4vw, 2rem) 0;
-          height: clamp(50px, 15vw, 60px);
+          margin: clamp(0.5rem, 1.5vh, 1rem) 0;
+          height: clamp(30px, 5vh, 45px);
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .tip-wrapper {
@@ -668,24 +697,37 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .features-preview {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(clamp(80px, 20vw, 120px), 1fr));
-          gap: clamp(0.8rem, 2.5vw, 1rem);
-          margin: clamp(1.5rem, 4vw, 2rem) 0;
+          display: grid !important;
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: clamp(0.6rem, 2.5vw, 1.2rem);
+          margin: clamp(0.5rem, 1.5vh, 1rem) 0;
+          flex-shrink: 1;
+          min-height: 0;
+          max-width: min(88vw, 380px);
+          width: 100%;
+          justify-self: center;
+          align-self: center;
+          padding: clamp(0.2rem, 0.8vw, 0.4rem);
         }
 
         .feature-item {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: clamp(0.4rem, 1vw, 0.5rem);
-          padding: clamp(0.8rem, 2.5vw, 1rem);
+          gap: clamp(0.3rem, 0.8vw, 0.5rem);
+          padding: clamp(0.6rem, 2vw, 1rem);
           background: rgba(255, 255, 255, 0.1);
-          border-radius: clamp(12px, 3vw, 15px);
+          border-radius: clamp(8px, 2vw, 12px);
           backdrop-filter: blur(5px);
           border: 1px solid rgba(255, 255, 255, 0.2);
           transition: transform 0.3s ease;
-          animation: featureFloat 3s ease-in-out infinite;
+          animation: featureFloatSubtle 4s ease-in-out infinite;
+          min-height: clamp(50px, 10vh, 75px);
+          max-height: clamp(75px, 15vh, 95px);
+          flex-shrink: 0;
+          justify-content: center;
+          box-sizing: border-box;
+          overflow: hidden;
         }
 
         .feature-item:nth-child(1) { animation-delay: 0s; }
@@ -694,20 +736,35 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         .feature-item:nth-child(4) { animation-delay: 1.5s; }
 
         .feature-icon {
-          font-size: clamp(1.2rem, 4vw, 1.5rem);
+          font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+          margin-bottom: clamp(0.15rem, 0.6vh, 0.25rem);
+          flex-shrink: 0;
+          color: #9370db;
+          filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.5));
         }
 
         .feature-item span {
-          font-size: clamp(0.7rem, 2vw, 0.8rem);
+          font-size: clamp(0.6rem, 2.2vw, 0.85rem);
           font-weight: 500;
           text-align: center;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
+          flex-shrink: 0;
+          color: #f8f8ff;
+          text-shadow: 0 0 4px rgba(248, 248, 255, 0.3);
         }
 
         .loading-animation {
           display: flex;
           justify-content: center;
-          gap: clamp(0.4rem, 1vw, 0.5rem);
-          margin-top: clamp(1.5rem, 4vw, 2rem);
+          gap: clamp(0.5rem, 1.2vw, 0.8rem);
+          margin-top: clamp(1rem, 3vh, 2rem);
+          margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+          padding: clamp(0.5rem, 1.5vw, 1rem);
+          width: 100%;
         }
 
         .dot {
@@ -964,19 +1021,6 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             box-shadow: 
               0 0 8px rgba(147, 112, 219, 0.4),
               0 0 16px rgba(147, 112, 219, 0.2);
-          }
-        }
-
-        @keyframes fullscreenPulse {
-          0%, 100% {
-            background: rgba(34, 197, 94, 0.15);
-            border-color: rgba(34, 197, 94, 0.3);
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
-          }
-          50% {
-            background: rgba(34, 197, 94, 0.25);
-            border-color: rgba(34, 197, 94, 0.5);
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
           }
         }
 
@@ -1310,6 +1354,17 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           50% { transform: translateY(-5px); }
         }
 
+        @keyframes featureFloatSubtle {
+          0%, 100% { 
+            transform: translateY(0px) scale(1);
+            box-shadow: 0 2px 8px rgba(147, 112, 219, 0.2);
+          }
+          50% { 
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(147, 112, 219, 0.3);
+          }
+        }
+
         @keyframes classyVibeElectricity {
           0%, 100% { 
             transform: scale(1) rotate(0deg);
@@ -1632,11 +1687,65 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           }
         }
 
+        /* Tablet Portrait Mode (768px - 1024px, portrait) */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+          body {
+            overflow: hidden;
+          }
+          
+          .loading-wrapper {
+            overflow: hidden;
+            max-height: 100vh;
+            max-height: 100dvh;
+          }
+          
+          .loading-content {
+            max-width: 600px;
+            max-height: calc(100vh - 3rem);
+            max-height: calc(100dvh - 3rem);
+            padding: 2rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            gap: clamp(1rem, 2vh, 1.5rem);
+          }
+
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(1rem, 2.5vw, 1.5rem);
+            margin: clamp(1rem, 2vh, 1.5rem) 0;
+            max-width: min(80vw, 500px);
+            padding: clamp(0.4rem, 1vw, 0.8rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(70px, 8vh, 90px);
+            max-height: clamp(90px, 12vh, 110px);
+            padding: clamp(1rem, 2.5vw, 1.5rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(1.6rem, 3.5vw, 2rem);
+            margin-bottom: clamp(0.25rem, 0.6vh, 0.35rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            line-height: 1.3;
+          }
+        }
+
         /* Tablets and Small Laptops (768px - 1023px) */
         @media (min-width: 768px) and (max-width: 1023px) {
           .loading-content {
-            max-width: 480px;
+            max-width: 520px;
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100dvh - 2rem);
             padding: 2.5rem 2rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            gap: clamp(1rem, 2vh, 1.5rem);
           }
 
           .loading-title {
@@ -1646,6 +1755,32 @@ const LoadingScreen = ({ isFullscreen = false }) => {
 
           .loading-subtitle {
             font-size: 0.95rem;
+          }
+
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.8rem, 2vw, 1.2rem);
+            margin: clamp(0.8rem, 1.5vh, 1.2rem) 0;
+            max-width: min(85vw, 450px);
+            padding: clamp(0.3rem, 1vw, 0.6rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(60px, 8vh, 80px);
+            max-height: clamp(80px, 12vh, 100px);
+            padding: clamp(0.8rem, 2vw, 1.2rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-bottom: clamp(0.2rem, 0.5vh, 0.3rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+            line-height: 1.2;
           }
 
           .loading-status {
@@ -1696,11 +1831,65 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           }
         }
 
+        /* Tablet Landscape Mode (768px - 1024px, landscape) */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+          body {
+            overflow: hidden;
+          }
+          
+          .loading-wrapper {
+            overflow: hidden;
+            max-height: 100vh;
+            max-height: 100dvh;
+          }
+          
+          .loading-content {
+            max-width: 700px;
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100dvh - 2rem);
+            padding: 1.5rem 2rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            gap: clamp(0.8rem, 1.5vh, 1.2rem);
+          }
+
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: clamp(0.8rem, 2vw, 1.2rem);
+            margin: clamp(0.8rem, 1.5vh, 1.2rem) 0;
+            max-width: min(85vw, 600px);
+            padding: clamp(0.3rem, 0.8vw, 0.6rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(60px, 8vh, 75px);
+            max-height: clamp(75px, 10vh, 90px);
+            padding: clamp(0.8rem, 2vw, 1.2rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(1.3rem, 3vw, 1.6rem);
+            margin-bottom: clamp(0.2rem, 0.5vh, 0.3rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+            line-height: 1.2;
+          }
+        }
+
         /* Mobile Landscape and Small Tablets (641px - 767px) */
         @media (min-width: 641px) and (max-width: 767px) {
           .loading-content {
             max-width: 95%;
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100dvh - 2rem);
             padding: 2rem 1.5rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            gap: clamp(0.8rem, 1.5vh, 1.2rem);
           }
 
           .loading-title {
@@ -1710,6 +1899,32 @@ const LoadingScreen = ({ isFullscreen = false }) => {
 
           .loading-subtitle {
             font-size: 0.9rem;
+          }
+
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.6rem, 2vw, 1rem);
+            margin: clamp(0.6rem, 1.2vh, 1rem) 0;
+            max-width: min(90vw, 400px);
+            padding: clamp(0.2rem, 0.8vw, 0.4rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(55px, 7vh, 70px);
+            max-height: clamp(70px, 10vh, 85px);
+            padding: clamp(0.6rem, 1.8vw, 0.9rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(1.2rem, 2.8vw, 1.5rem);
+            margin-bottom: clamp(0.15rem, 0.4vh, 0.2rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.6rem, 1.6vw, 0.8rem);
+            line-height: 1.2;
           }
 
           .loading-status {
@@ -1744,9 +1959,6 @@ const LoadingScreen = ({ isFullscreen = false }) => {
             font-size: 1.2rem;
             letter-spacing: 1.2px;
           }
-
-          .features-preview {
-            grid-template-columns: repeat(2, 1fr);
             gap: 0.9rem;
           }
 
@@ -1846,21 +2058,24 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           }
 
           .features-preview {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8rem;
-            margin: 1.5rem 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.25rem, 1vw, 0.4rem);
+            margin: clamp(0.4rem, 1.2vh, 0.8rem) 0;
+            max-width: min(98vw, 320px);
           }
 
           .feature-item {
-            padding: 0.8rem;
+            padding: clamp(0.25rem, 0.8vw, 0.4rem);
+            min-height: clamp(22px, 4.5vh, 28px);
           }
 
           .feature-icon {
-            font-size: 1.2rem;
+            font-size: clamp(0.8rem, 2.2vw, 1rem);
           }
 
           .feature-item span {
-            font-size: 0.72rem;
+            font-size: clamp(0.4rem, 1.3vw, 0.55rem);
+            line-height: 1;
           }
 
           .tip-item {
@@ -1885,11 +2100,11 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         @media (max-width: 480px) {
           .loading-content {
             max-width: 95%;
-            padding: 1.5rem 1rem;
+            padding: clamp(0.8rem, 2vh, 1.2rem) clamp(0.8rem, 2vw, 1rem);
           }
 
           .loading-header {
-            margin-bottom: 2rem;
+            margin-bottom: clamp(0.8rem, 2vh, 1.2rem);
           }
 
           .logo-icon {
@@ -1976,22 +2191,25 @@ const LoadingScreen = ({ isFullscreen = false }) => {
           }
 
           .features-preview {
-            grid-template-columns: 1fr 1fr;
-            gap: 0.6rem;
-            margin: 1.2rem 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.2rem, 0.8vw, 0.35rem);
+            margin: clamp(0.3rem, 1vh, 0.6rem) 0;
+            max-width: min(99vw, 280px);
           }
 
           .feature-item {
-            padding: 0.7rem 0.5rem;
+            padding: clamp(0.2rem, 0.6vw, 0.35rem);
+            min-height: clamp(20px, 4vh, 25px);
           }
 
           .feature-icon {
-            font-size: 1.1rem;
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
           }
 
           .feature-item span {
-            font-size: 0.68rem;
+            font-size: clamp(0.35rem, 1.1vw, 0.5rem);
             font-weight: 500;
+            line-height: 0.9;
           }
 
           .tip-item {
@@ -2031,11 +2249,11 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         @media (max-width: 319px) {
           .loading-content {
             max-width: 98%;
-            padding: 1.2rem 0.8rem;
+            padding: clamp(0.6rem, 1.5vh, 1rem) clamp(0.6rem, 1.5vw, 0.8rem);
           }
 
           .loading-header {
-            margin-bottom: 1.5rem;
+            margin-bottom: clamp(0.6rem, 1.5vh, 1rem);
           }
 
           .logo-icon {
@@ -2146,58 +2364,163 @@ const LoadingScreen = ({ isFullscreen = false }) => {
         /* Landscape Orientation Adjustments */
         @media (max-height: 500px) and (orientation: landscape) {
           .loading-content {
-            padding: 1rem;
-            max-height: 90vh;
-            overflow-y: auto;
+            padding: clamp(0.5rem, 1vh, 1rem);
           }
 
           .loading-header {
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.5rem, 1vh, 1rem);
           }
 
           .loading-title {
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
           }
 
           .loading-subtitle {
-            font-size: 0.8rem;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
           }
 
           .creator-credit, .acknowledgment-section {
-            margin-top: 0.5rem;
-            padding: 0.5rem 1rem;
+            margin-top: clamp(0.3rem, 1vh, 0.5rem);
+            padding: clamp(0.3rem, 1vh, 0.5rem) clamp(0.5rem, 2vw, 1rem);
           }
 
           .features-preview {
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-            margin: 1rem 0;
+            gap: clamp(0.3rem, 1vw, 0.5rem);
+            margin: clamp(0.5rem, 1vh, 1rem) 0;
           }
 
           .feature-item {
-            padding: 0.5rem;
+            padding: clamp(0.3rem, 1vh, 0.5rem);
           }
 
           .feature-icon {
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 2vw, 1rem);
           }
 
           .feature-item span {
-            font-size: 0.65rem;
+            font-size: clamp(0.6rem, 1.5vw, 0.65rem);
           }
 
           .tips-container {
-            height: 40px;
-            margin: 0.8rem 0;
+            height: clamp(30px, 6vh, 40px);
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
           }
 
           .tip-item {
-            font-size: 0.75rem;
-            padding: 0.5rem 1rem;
+            font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+            padding: clamp(0.3rem, 1vh, 0.5rem) clamp(0.5rem, 2vw, 1rem);
           }
 
           .progress-container {
-            margin: 0.8rem 0;
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
+          }
+        }
+
+        /* Very Small Height Mobile Screens (Portrait) */
+        @media (max-height: 600px) and (orientation: portrait) {
+          .loading-content {
+            padding: clamp(0.6rem, 1.5vh, 1rem) clamp(0.8rem, 2vw, 1rem);
+          }
+
+          .loading-header {
+            margin-bottom: clamp(0.6rem, 1.5vh, 1rem);
+          }
+
+          .creator-credit, .acknowledgment-section {
+            margin-top: clamp(0.3rem, 1vh, 0.5rem);
+            padding: clamp(0.3rem, 1vh, 0.5rem) clamp(0.5rem, 2vw, 0.8rem);
+          }
+
+          .features-preview {
+            margin: clamp(0.5rem, 1.5vh, 0.8rem) 0;
+            gap: clamp(0.3rem, 1vw, 0.5rem);
+          }
+
+          .tips-container {
+            margin: clamp(0.5rem, 1.5vh, 0.8rem) 0;
+          }
+
+          .progress-container {
+            margin: clamp(0.5rem, 1.5vh, 0.8rem) 0;
+          }
+
+          .loading-animation {
+            margin-top: clamp(0.8rem, 2vh, 1rem);
+          }
+        }
+
+        /* Ultra Small Height Mobile Screens */
+        @media (max-height: 500px) and (orientation: portrait) {
+          .loading-content {
+            padding: clamp(0.4rem, 1vh, 0.6rem) clamp(0.6rem, 1.5vw, 0.8rem);
+          }
+
+          .loading-header {
+            margin-bottom: clamp(0.4rem, 1vh, 0.6rem);
+          }
+
+          .logo-icon {
+            width: clamp(28px, 6vw, 32px);
+            height: clamp(28px, 6vw, 32px);
+          }
+
+          .loading-title {
+            font-size: clamp(1.2rem, 4vw, 1.4rem);
+            margin-bottom: clamp(0.2rem, 0.5vh, 0.3rem);
+          }
+
+          .loading-subtitle {
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
+          }
+
+          .creator-credit, .acknowledgment-section {
+            margin-top: clamp(0.2rem, 0.5vh, 0.3rem);
+            padding: clamp(0.2rem, 0.5vh, 0.4rem) clamp(0.4rem, 1vw, 0.6rem);
+          }
+
+          .features-preview {
+            grid-template-columns: repeat(4, 1fr);
+            margin: clamp(0.3rem, 1vh, 0.5rem) 0;
+            gap: clamp(0.2rem, 0.5vw, 0.3rem);
+          }
+
+          .feature-item {
+            padding: clamp(0.2rem, 0.5vh, 0.4rem) clamp(0.1rem, 0.5vw, 0.2rem);
+          }
+
+          .feature-icon {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+          }
+
+          .feature-item span {
+            font-size: clamp(0.55rem, 1.5vw, 0.6rem);
+          }
+
+          .tips-container {
+            height: clamp(25px, 4vh, 35px);
+            margin: clamp(0.3rem, 1vh, 0.5rem) 0;
+          }
+
+          .tip-item {
+            font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+            padding: clamp(0.2rem, 0.5vh, 0.4rem) clamp(0.4rem, 1vw, 0.6rem);
+          }
+
+          .progress-container {
+            margin: clamp(0.3rem, 1vh, 0.5rem) 0;
+          }
+
+          .loading-animation {
+            margin-top: clamp(0.5rem, 1.5vh, 0.8rem);
+          }
+
+          .dot {
+            width: clamp(5px, 1.5vw, 6px);
+            height: clamp(5px, 1.5vw, 6px);
+          }
+        }
           }
 
           .loading-animation {
@@ -2240,6 +2563,343 @@ const LoadingScreen = ({ isFullscreen = false }) => {
 
           .progress-shine {
             animation: none;
+          }
+        }
+        /* Very small mobile screens - hide non-essential content */
+        @media screen and (max-height: 600px) {
+          .loading-content {
+            gap: clamp(0.6rem, 1.5vh, 1rem);
+            padding: clamp(0.6rem, 2vh, 1.5rem) clamp(0.6rem, 2vw, 1.5rem);
+          }
+          
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.5rem, 2vw, 0.8rem);
+            margin: clamp(0.4rem, 1vh, 0.6rem) 0;
+            max-width: min(85vw, 320px);
+            padding: clamp(0.15rem, 0.6vw, 0.3rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(45px, 8vh, 55px);
+            max-height: clamp(55px, 10vh, 70px);
+            padding: clamp(0.5rem, 1.8vw, 0.7rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            margin-bottom: clamp(0.1rem, 0.4vh, 0.15rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.5rem, 1.8vw, 0.65rem);
+            line-height: 1.1;
+          }
+          
+          .acknowledgment-section {
+            display: none;
+          }
+          
+          .loading-status {
+            margin: clamp(0.5rem, 1.5vh, 0.8rem) 0;
+            padding: clamp(0.8rem, 2.5vw, 1rem) clamp(1.2rem, 3.5vw, 1.5rem);
+          }
+          
+          .tips-container {
+            height: clamp(25px, 4vh, 30px);
+            margin: clamp(0.3rem, 0.8vh, 0.5rem) 0;
+          }
+          
+          .creator-credit {
+            margin: clamp(0.5rem, 1.2vh, 0.8rem) 0;
+            padding: clamp(0.8rem, 2.5vw, 1rem) clamp(1.2rem, 3.5vw, 1.5rem);
+          }
+          
+          .loading-animation {
+            margin: clamp(0.5rem, 1.5vh, 1rem) 0;
+          }
+        }
+
+        /* Extra small mobile screens - minimal content only */
+        @media screen and (max-height: 500px) {
+          .loading-content {
+            gap: clamp(0.4rem, 1vh, 0.8rem);
+            padding: clamp(0.5rem, 1.5vh, 1.2rem) clamp(0.5rem, 1.5vw, 1.2rem);
+          }
+          
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.4rem, 1.8vw, 0.6rem);
+            margin: clamp(0.3rem, 0.8vh, 0.5rem) 0;
+            max-width: min(80vw, 300px);
+            padding: clamp(0.1rem, 0.5vw, 0.2rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(40px, 7vh, 50px);
+            max-height: clamp(50px, 9vh, 60px);
+            padding: clamp(0.4rem, 1.5vw, 0.6rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+            margin-bottom: clamp(0.08rem, 0.3vh, 0.12rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.45rem, 1.6vw, 0.6rem);
+            line-height: 1.1;
+          }
+          
+          .tips-container {
+            display: none;
+          }
+          
+          .loading-status {
+            margin: clamp(0.3rem, 1vh, 0.6rem) 0;
+            padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.3rem);
+          }
+          
+          .creator-credit {
+            margin: clamp(0.3rem, 1vh, 0.6rem) 0;
+            padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.3rem);
+          }
+          
+          .loading-animation {
+            margin: clamp(0.3rem, 1vh, 0.6rem) 0;
+          }
+        }
+
+        /* Tiny screens - absolute minimum */
+        @media screen and (max-height: 400px) {
+          .loading-content {
+            gap: clamp(0.3rem, 0.8vh, 0.6rem);
+            padding: clamp(0.4rem, 1.2vh, 1rem) clamp(0.4rem, 1.2vw, 1rem);
+          }
+          
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.25rem, 1vw, 0.4rem);
+            margin: clamp(0.2rem, 0.6vh, 0.4rem) 0;
+            max-width: min(75vw, 250px);
+            padding: 0;
+          }
+          
+          .feature-item {
+            min-height: clamp(25px, 4vh, 35px);
+            max-height: clamp(35px, 6vh, 45px);
+            padding: clamp(0.25rem, 0.8vw, 0.4rem);
+            box-sizing: border-box;
+          }
+          
+          .feature-icon {
+            font-size: clamp(0.6rem, 2vw, 0.8rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.35rem, 1.2vw, 0.45rem);
+            line-height: 1;
+          }
+          
+          .loading-status {
+            margin: clamp(0.2rem, 0.8vh, 0.4rem) 0;
+            padding: clamp(0.5rem, 1.5vw, 0.7rem) clamp(0.8rem, 2.5vw, 1.1rem);
+          }
+          
+          .creator-credit {
+            margin: clamp(0.2rem, 0.8vh, 0.4rem) 0;
+            padding: clamp(0.5rem, 1.5vw, 0.7rem) clamp(0.8rem, 2.5vw, 1.1rem);
+          }
+          
+          .loading-animation {
+            margin: clamp(0.2rem, 0.8vh, 0.4rem) 0;
+          }
+            max-width: min(94vw, 220px);
+          }
+          
+          .feature-item {
+            min-height: clamp(16px, 2.5vh, 20px);
+            padding: clamp(0.15rem, 0.6vw, 0.25rem);
+          }
+          
+          .feature-icon {
+            font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+            margin-bottom: 0;
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.28rem, 0.9vw, 0.38rem);
+            line-height: 0.8;
+          }
+          
+          .creator-credit {
+            display: none;
+          }
+          
+          .loading-header h1 {
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            margin: 0;
+          }
+          
+          .loading-header .company-name {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            margin: 0;
+          }
+        }
+
+        /* Narrow mobile screens - prevent overlapping */
+        @media screen and (max-width: 400px) {
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: clamp(0.4rem, 2vw, 0.7rem);
+            max-width: min(85vw, 340px);
+            padding: clamp(0.2rem, 1.2vw, 0.4rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(45px, 11vw, 60px);
+            max-height: clamp(60px, 14vw, 75px);
+            padding: clamp(0.5rem, 2.2vw, 0.8rem);
+            box-sizing: border-box;
+            border-radius: clamp(6px, 1.5vw, 8px);
+          }
+          
+          .feature-icon {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: clamp(0.12rem, 0.6vw, 0.18rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.5rem, 2.2vw, 0.7rem);
+            line-height: 1.2;
+          }
+        }
+
+        /* Extra narrow mobile screens */
+        @media screen and (max-width: 320px) {
+          .features-preview {
+            gap: clamp(0.3rem, 1.8vw, 0.5rem);
+            max-width: min(90vw, 310px);
+            padding: clamp(0.15rem, 1vw, 0.3rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(40px, 12vw, 55px);
+            max-height: clamp(55px, 16vw, 70px);
+            padding: clamp(0.4rem, 2.5vw, 0.7rem);
+          }
+          
+          .feature-icon {
+            font-size: clamp(0.9rem, 4.2vw, 1.2rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.45rem, 2.4vw, 0.65rem);
+          }
+          
+          .loading-title {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+          }
+          
+          .loading-subtitle {
+            font-size: clamp(0.7rem, 2.8vw, 0.9rem);
+          }
+        }
+
+        /* Large Portrait Screens (Big phones, small tablets in portrait) */
+        @media screen and (min-width: 414px) and (max-width: 768px) and (orientation: portrait) {
+          .loading-content {
+            max-width: min(85vw, 500px);
+            padding: clamp(1.2rem, 3vh, 2.5rem) clamp(1.2rem, 3vw, 2.5rem);
+            gap: clamp(1.2rem, 2.5vh, 2rem);
+          }
+
+          .features-preview {
+            gap: clamp(0.8rem, 2.5vw, 1.2rem);
+            max-width: min(80vw, 420px);
+            padding: clamp(0.4rem, 1.2vw, 0.8rem);
+          }
+          
+          .feature-item {
+            min-height: clamp(60px, 9vh, 80px);
+            max-height: clamp(80px, 12vh, 100px);
+            padding: clamp(0.8rem, 2.2vw, 1.2rem);
+          }
+          
+          .feature-icon {
+            font-size: clamp(1.3rem, 3.2vw, 1.7rem);
+            margin-bottom: clamp(0.2rem, 0.6vh, 0.3rem);
+          }
+          
+          .feature-item span {
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            line-height: 1.3;
+          }
+          
+          .loading-title {
+            font-size: clamp(2.2rem, 4.8vw, 3rem);
+            margin: clamp(0.8rem, 2vh, 1.5rem) 0 clamp(0.8rem, 2vh, 1.5rem) 0;
+          }
+          
+          .loading-subtitle {
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+            margin-bottom: clamp(1.2rem, 2.8vh, 2rem);
+          }
+
+          .logo-container {
+            margin-bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+            padding-bottom: clamp(0.8rem, 2vh, 1.5rem);
+          }
+
+          .logo-icon {
+            width: clamp(48px, 8vw, 64px);
+            height: clamp(48px, 8vw, 64px);
+          }
+        }
+          
+          .progress-container {
+            margin: clamp(0.3rem, 1vh, 0.5rem) 0;
+          }
+        }
+
+        /* Final Override: Ensure Grid Always Shows on Tablets */
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .features-preview {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+          
+          body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          
+          .loading-wrapper {
+            overflow: hidden !important;
+            max-height: 100vh !important;
+            max-height: 100dvh !important;
+          }
+          
+          .loading-content {
+            max-height: calc(100vh - 2rem) !important;
+            max-height: calc(100dvh - 2rem) !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+          }
+        }
+
+        /* Landscape Tablets - 4 columns */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+          .features-preview {
+            grid-template-columns: repeat(4, 1fr) !important;
           }
         }
       `}</style>

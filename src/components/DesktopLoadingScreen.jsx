@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FileEdit, Zap, Star, Sparkles, Monitor, Smartphone, Maximize } from 'lucide-react';
+import { FileEdit, Star, Sparkles } from 'lucide-react';
 
-const DesktopLoadingScreen = ({ isFullscreen = false }) => {
+const DesktopLoadingScreen = () => {
   const [progress, setProgress] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
   const [loadingStatus, setLoadingStatus] = useState('Initializing application...');
@@ -18,6 +18,22 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
     "🎨 Multiple professional themes available",
     "📱 Mobile-ready responsive design"
   ];
+
+  useEffect(() => {
+    // Prevent scrolling on body when loading screen is active
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    
+    return () => {
+      // Restore scrolling when component unmounts
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, []);
 
   useEffect(() => {
     const loadingStages = [
@@ -37,7 +53,7 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           clearInterval(progressInterval);
           return 100;
         }
-        const newProgress = prev + 0.67;
+        const newProgress = prev + 1.34;
         
         // Update loading status based on progress
         const currentStage = loadingStages
@@ -74,29 +90,11 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
               <div className="desktop-logo-sparkles">
                 <Sparkles className="desktop-sparkle desktop-sparkle-1" size={20} />
                 <Star className="desktop-sparkle desktop-sparkle-2" size={16} />
-                <Zap className="desktop-sparkle desktop-sparkle-3" size={18} />
+                <FileEdit className="desktop-sparkle desktop-sparkle-3" size={18} />
               </div>
             </div>
             <h1 className="desktop-title">Resume Builder Pro</h1>
-            <p className="desktop-subtitle">Professional Resume Creation Suite</p>
-            
-            {/* Platform Icons */}
-            <div className="desktop-platform-icons">
-              <div className="desktop-platform-item">
-                <Monitor size={24} />
-                <span>Desktop</span>
-              </div>
-              <div className="desktop-platform-item">
-                <Smartphone size={24} />
-                <span>Mobile</span>
-              </div>
-              {isFullscreen && (
-                <div className="desktop-platform-item fullscreen-indicator">
-                  <Maximize size={24} />
-                  <span>Fullscreen</span>
-                </div>
-              )}
-            </div>
+            <p className="desktop-subtitle">Creating your professional resume...</p>
           </div>
 
           {/* Progress Section */}
@@ -143,33 +141,27 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
             <div className="desktop-features-grid">
               <div className="desktop-feature-card">
                 <div className="desktop-feature-icon">📝</div>
-                <h4>Smart Forms</h4>
-                <p>Intelligent form validation and auto-suggestions</p>
+                <span>Smart Forms</span>
               </div>
               <div className="desktop-feature-card">
                 <div className="desktop-feature-icon">🎨</div>
-                <h4>Multiple Themes</h4>
-                <p>Professional templates for every industry</p>
+                <span>Multiple Themes</span>
               </div>
               <div className="desktop-feature-card">
                 <div className="desktop-feature-icon">⚡</div>
-                <h4>Live Preview</h4>
-                <p>Real-time editing with instant preview</p>
+                <span>Live Preview</span>
               </div>
               <div className="desktop-feature-card">
                 <div className="desktop-feature-icon">📄</div>
-                <h4>Export Options</h4>
-                <p>PDF, HTML, and mobile-ready formats</p>
+                <span>PDF Export</span>
               </div>
               <div className="desktop-feature-card">
-                <div className="desktop-feature-icon">🔧</div>
-                <h4>Customizable</h4>
-                <p>Full control over layout and styling</p>
+                <div className="desktop-feature-icon">�</div>
+                <span>Auto Save</span>
               </div>
               <div className="desktop-feature-card">
                 <div className="desktop-feature-icon">📱</div>
-                <h4>Responsive</h4>
-                <p>Perfect on desktop, tablet, and mobile</p>
+                <span>Mobile Ready</span>
               </div>
             </div>
           </div>
@@ -202,10 +194,6 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           width: 100vw;
           height: 100vh;
           height: 100dvh; /* Dynamic viewport height for mobile browsers */
-          ${isFullscreen ? `
-            min-height: 100vh;
-            min-height: 100dvh;
-          ` : ''}
           background: 
             radial-gradient(circle at 20% 20%, rgba(106, 90, 205, 0.3) 0%, transparent 50%),
             radial-gradient(circle at 80% 80%, rgba(72, 61, 139, 0.2) 0%, transparent 50%),
@@ -251,10 +239,10 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: clamp(2rem, 4vw, 4rem);
-          max-width: ${isFullscreen ? '98vw' : 'min(1200px, 90vw)'};
+          max-width: min(1200px, 90vw);
           width: 90vw;
-          height: ${isFullscreen ? '98vh' : 'min(80vh, 90vh)'};
-          height: ${isFullscreen ? '98dvh' : 'min(80dvh, 90dvh)'};
+          height: min(80vh, 90vh);
+          height: min(80dvh, 90dvh);
           background: 
             linear-gradient(135deg, 
               rgba(15, 15, 35, 0.95) 0%, 
@@ -263,7 +251,7 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
               rgba(26, 26, 46, 0.9) 75%, 
               rgba(15, 15, 35, 0.95) 100%
             );
-          border-radius: ${isFullscreen ? '12px' : 'clamp(16px, 2vw, 24px)'};
+          border-radius: clamp(16px, 2vw, 24px);
           backdrop-filter: blur(30px);
           border: 1px solid rgba(147, 112, 219, 0.3);
           box-shadow: 
@@ -364,49 +352,6 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           font-weight: 400;
           color: #e6e6fa;
           letter-spacing: 1px;
-        }
-
-        .desktop-platform-icons {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          margin-bottom: 3rem;
-        }
-
-        .desktop-platform-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 1rem;
-          background: rgba(147, 112, 219, 0.1);
-          border-radius: 12px;
-          border: 1px solid rgba(147, 112, 219, 0.2);
-          backdrop-filter: blur(10px);
-          animation: platformFloat 4s ease-in-out infinite;
-        }
-
-        .desktop-platform-item:nth-child(1) {
-          animation-delay: 0s;
-        }
-
-        .desktop-platform-item:nth-child(2) {
-          animation-delay: 1s;
-        }
-
-        .desktop-platform-item:nth-child(3) {
-          animation-delay: 2s;
-        }
-
-        .fullscreen-indicator {
-          background: rgba(34, 197, 94, 0.15) !important;
-          border-color: rgba(34, 197, 94, 0.3) !important;
-          color: #22c55e !important;
-        }
-
-        .desktop-platform-item span {
-          font-size: 0.9rem;
-          font-weight: 500;
         }
 
         .desktop-progress-section {
@@ -618,19 +563,28 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
 
         .desktop-features-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.8rem;
+          max-width: 400px;
+          margin: 0 auto;
         }
 
         .desktop-feature-card {
-          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.4rem;
+          padding: 0.8rem;
           background: rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
+          border-radius: 8px;
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.15);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
           animation: featureFloat 4s ease-in-out infinite;
           text-align: center;
+          aspect-ratio: 1;
+          min-height: 60px;
         }
 
         .desktop-feature-card:nth-child(1) { animation-delay: 0s; }
@@ -646,23 +600,18 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
         }
 
         .desktop-feature-icon {
-          font-size: 2rem;
-          margin-bottom: 0.8rem;
+          font-size: 1.5rem;
+          margin-bottom: 0.2rem;
         }
 
-        .desktop-feature-card h4 {
-          font-size: 1.1rem;
-          margin: 0 0 0.5rem 0;
+        .desktop-feature-card span {
+          font-size: 0.8rem;
           font-weight: 600;
           color: #ffffff;
-        }
-
-        .desktop-feature-card p {
-          font-size: 0.9rem;
-          margin: 0;
-          opacity: 0.8;
-          color: #e6e6fa;
-          line-height: 1.4;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
         }
 
         .desktop-tips-section {
@@ -734,11 +683,6 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 200% 50%; }
-        }
-
-        @keyframes platformFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-3px); }
         }
 
         @keyframes progressFlow {
@@ -896,6 +840,164 @@ const DesktopLoadingScreen = ({ isFullscreen = false }) => {
           .desktop-features-grid {
             grid-template-columns: 1fr;
             gap: 1rem;
+          }
+        }
+
+        /* Mobile Landscape and Small Tablets */
+        @media (max-width: 768px) {
+          .desktop-loading-container {
+            width: 96vw;
+            min-height: 95vh;
+            min-height: 95dvh;
+            padding: clamp(0.8rem, 2vh, 1.5rem);
+            gap: clamp(1rem, 3vh, 2rem);
+          }
+
+          .desktop-title {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+          }
+
+          .desktop-subtitle {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            margin-bottom: clamp(0.8rem, 2vh, 1.2rem);
+          }
+
+          .desktop-features-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.8rem, 2vw, 1.2rem);
+            margin: clamp(1rem, 2.5vh, 1.5rem) 0;
+          }
+
+          .desktop-feature-item {
+            padding: clamp(0.8rem, 2.5vw, 1.2rem);
+            min-height: clamp(80px, 12vh, 120px);
+          }
+
+          .desktop-feature-icon {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
+          }
+
+          .desktop-feature-text {
+            font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+            line-height: 1.3;
+          }
+
+          .desktop-progress-container {
+            margin: clamp(1rem, 2.5vh, 1.5rem) 0;
+          }
+
+          .desktop-tips-container {
+            height: clamp(60px, 8vh, 80px);
+            margin: clamp(1rem, 2.5vh, 1.5rem) 0;
+          }
+
+          .desktop-tip-item {
+            font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+            padding: clamp(0.6rem, 2vw, 1rem);
+          }
+        }
+
+        /* Small Landscape Screens (Phones in landscape) */
+        @media (max-width: 640px) and (orientation: landscape) {
+          .desktop-loading-container {
+            gap: clamp(0.8rem, 2vh, 1.2rem);
+            padding: clamp(0.6rem, 1.5vh, 1rem);
+          }
+
+          .desktop-title {
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            margin-bottom: clamp(0.3rem, 1vh, 0.6rem);
+          }
+
+          .desktop-subtitle {
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 0.8rem);
+          }
+
+          .desktop-features-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.6rem, 1.8vw, 1rem);
+            margin: clamp(0.6rem, 1.5vh, 1rem) 0;
+          }
+
+          .desktop-feature-item {
+            padding: clamp(0.5rem, 1.8vw, 0.8rem);
+            min-height: clamp(60px, 8vh, 80px);
+          }
+
+          .desktop-feature-icon {
+            font-size: clamp(1rem, 3.5vw, 1.3rem);
+            margin-bottom: clamp(0.2rem, 0.8vh, 0.3rem);
+          }
+
+          .desktop-feature-text {
+            font-size: clamp(0.6rem, 2vw, 0.8rem);
+            line-height: 1.2;
+          }
+
+          .desktop-tips-container {
+            height: clamp(45px, 6vh, 60px);
+            margin: clamp(0.6rem, 1.5vh, 1rem) 0;
+          }
+
+          .desktop-tip-item {
+            font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+            padding: clamp(0.4rem, 1.5vw, 0.7rem);
+          }
+        }
+
+        /* Tablet Landscape Specific Optimization */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+          .desktop-loading-container {
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 3vw, 2.5rem);
+            padding: clamp(1rem, 2.5vh, 2rem);
+            max-height: 95vh;
+            max-height: 95dvh;
+            overflow-y: auto;
+          }
+
+          .desktop-left-column,
+          .desktop-right-column {
+            padding: clamp(1rem, 2vw, 1.8rem);
+          }
+
+          .desktop-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+          }
+
+          .desktop-subtitle {
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+            margin-bottom: clamp(0.8rem, 1.8vh, 1.2rem);
+          }
+
+          .desktop-features-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.8rem, 2vw, 1.2rem);
+            margin: clamp(1rem, 2vh, 1.5rem) 0;
+          }
+
+          .desktop-feature-card {
+            padding: clamp(0.8rem, 2vw, 1.2rem);
+            min-height: clamp(70px, 8vh, 90px);
+          }
+
+          .desktop-feature-icon {
+            font-size: clamp(1.5rem, 3.5vw, 2rem);
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);
+          }
+
+          .desktop-tips-container {
+            height: clamp(55px, 7vh, 75px);
+            margin: clamp(1rem, 2vh, 1.5rem) 0;
+          }
+
+          .desktop-tip-item {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            padding: clamp(0.8rem, 2vw, 1.2rem);
           }
         }
       `}</style>

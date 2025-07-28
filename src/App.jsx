@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileEdit, Download, Settings, Users, RotateCcw, Home } from 'lucide-react';
+import { FileEdit, FileText, Download, Settings, Users, RotateCcw, Home, Briefcase, Star, Sparkles } from 'lucide-react';
 import JSZip from 'jszip';
 import ResumeForm from './components/ResumeForm';
 import ResumeTemplate from './components/ResumeTemplate';
@@ -11,21 +11,66 @@ import TabletGestureHints from './components/TabletGestureHints';
 import './App.css';
 
 const App = () => {
+  // Unified device detection function
+  const detectDeviceType = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const aspectRatio = width / height;
+    
+    // Enhanced tablet detection - includes landscape tablets and touch devices
+    const mobile = width <= 768 && isTouchDevice;
+    const tablet = (
+      (width > 768 && width <= 1366 && isTouchDevice) || // Standard tablet range
+      (width > 1024 && aspectRatio < 1.5 && isTouchDevice) || // Landscape tablets
+      (navigator.userAgent.match(/iPad/i) != null) || // iPad detection
+      (navigator.userAgent.match(/Android/i) != null && !navigator.userAgent.match(/Mobile/i)) // Android tablets
+    );
+    const desktop = !isTouchDevice || (width > 1366 && !tablet);
+    
+    // Fullscreen detection - multiple methods for cross-browser compatibility
+    const isCurrentlyFullscreen = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement ||
+      // PWA/standalone mode detection
+      window.navigator.standalone ||
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      // Android WebView detection
+      (window.outerHeight === window.innerHeight && window.outerWidth === window.innerWidth) ||
+      // Height-based detection for mobile apps
+      (height >= screen.height * 0.95 && width >= screen.width * 0.95)
+    );
+    
+    return { mobile, tablet, desktop, isCurrentlyFullscreen };
+  };
+  
+  // Get initial device state using unified function
+  const initialDevice = detectDeviceType();
+  
   const [isLoading, setIsLoading] = useState(true);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(initialDevice.desktop);
+  const [isTablet, setIsTablet] = useState(initialDevice.tablet);
+  const [_isFullscreen, setIsFullscreen] = useState(initialDevice.isCurrentlyFullscreen);
   const [currentTheme, setCurrentTheme] = useState('professional');
   const [showAdmin, setShowAdmin] = useState(false);
   const [notification, setNotification] = useState(null);
   const [isGeneratingHTML, setIsGeneratingHTML] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(initialDevice.mobile);
   const [hasMouseKeyboard, setHasMouseKeyboard] = useState(false);
   const [recentlyClosed, setRecentlyClosed] = useState(false);
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(() => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const aspectRatio = windowWidth / windowHeight;
+    return windowWidth > windowHeight || aspectRatio > 1.2 || (windowWidth >= 768 && aspectRatio > 1.0);
+  });
   const previewRef = useRef(null);
   const sidebarRef = useRef(null);
   const previewPanelRef = useRef(null);
@@ -150,43 +195,23 @@ const App = () => {
   // Mobile, tablet, desktop, and fullscreen detection and resize handler
   useEffect(() => {
     const checkDeviceType = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const { mobile, tablet, desktop, isCurrentlyFullscreen } = detectDeviceType();
       
-      // Improved device detection with touch capability
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      const aspectRatio = width / height;
-      
-      // Enhanced tablet detection - includes landscape tablets and touch devices
-      const mobile = width <= 768 && isTouchDevice;
-      const tablet = (
-        (width > 768 && width <= 1366 && isTouchDevice) || // Standard tablet range
-        (width > 1024 && aspectRatio < 1.5 && isTouchDevice) || // Landscape tablets
-        (navigator.userAgent.match(/iPad/i) != null) || // iPad detection
-        (navigator.userAgent.match(/Android/i) != null && !navigator.userAgent.match(/Mobile/i)) // Android tablets
-      );
-      const desktop = !isTouchDevice || (width > 1366 && !tablet);
-      
-      // Fullscreen detection - multiple methods for cross-browser compatibility
-      const isCurrentlyFullscreen = !!(
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement ||
-        // PWA/standalone mode detection
-        window.navigator.standalone ||
-        window.matchMedia('(display-mode: standalone)').matches ||
-        window.matchMedia('(display-mode: fullscreen)').matches ||
-        // Android WebView detection
-        (window.outerHeight === window.innerHeight && window.outerWidth === window.innerWidth) ||
-        // Height-based detection for mobile apps
-        (height >= screen.height * 0.95 && width >= screen.width * 0.95)
+      // Update orientation state
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const aspectRatio = windowWidth / windowHeight;
+      const currentIsLandscape = (
+        windowWidth > windowHeight ||
+        aspectRatio > 1.2 ||
+        (windowWidth >= 768 && aspectRatio > 1.0)
       );
       
       setIsMobile(mobile);
       setIsTablet(tablet);
       setIsDesktop(desktop);
       setIsFullscreen(isCurrentlyFullscreen);
+      setIsLandscape(currentIsLandscape);
       
       // Close sidebar and preview on desktop only
       if (desktop && !tablet) {
@@ -201,8 +226,10 @@ const App = () => {
       }
     };
 
-    checkDeviceType();
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(checkDeviceType, 100);
     window.addEventListener('resize', checkDeviceType);
+    window.addEventListener('orientationchange', checkDeviceType);
     
     // Fullscreen change event listeners
     document.addEventListener('fullscreenchange', checkDeviceType);
@@ -211,7 +238,9 @@ const App = () => {
     document.addEventListener('MSFullscreenChange', checkDeviceType);
     
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('resize', checkDeviceType);
+      window.removeEventListener('orientationchange', checkDeviceType);
       document.removeEventListener('fullscreenchange', checkDeviceType);
       document.removeEventListener('webkitfullscreenchange', checkDeviceType);
       document.removeEventListener('mozfullscreenchange', checkDeviceType);
@@ -355,6 +384,78 @@ const App = () => {
     setShowRightSidebar(false);
   };
 
+  // Body scroll management - prevent background scrolling when sidebars are open
+  useEffect(() => {
+    const hasActiveSidebar = showSidebar || showPreview || showLeftSidebar || showRightSidebar;
+    
+    if (hasActiveSidebar) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      
+      // Apply to both html and body for maximum compatibility
+      document.documentElement.classList.add('body-no-scroll');
+      document.body.classList.add('body-no-scroll');
+      
+      // Lock body position
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      // Lock html element as well
+      document.documentElement.style.position = 'fixed';
+      document.documentElement.style.height = '100%';
+      document.documentElement.style.width = '100%';
+      document.documentElement.style.overflow = 'hidden';
+      
+      // Prevent scrolling on window
+      document.documentElement.style.scrollBehavior = 'auto';
+      
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      
+      // Remove classes
+      document.documentElement.classList.remove('body-no-scroll');
+      document.body.classList.remove('body-no-scroll');
+      
+      // Restore body styles
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
+      
+      // Restore html styles
+      document.documentElement.style.position = '';
+      document.documentElement.style.height = '';
+      document.documentElement.style.width = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.scrollBehavior = '';
+      
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      document.documentElement.classList.remove('body-no-scroll');
+      document.body.classList.remove('body-no-scroll');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.height = '';
+      document.documentElement.style.width = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.scrollBehavior = '';
+    };
+  }, [showSidebar, showPreview, showLeftSidebar, showRightSidebar]);
+
   // Synchronized scrolling between form and preview
   useEffect(() => {
     if (!isDesktop || !showRightSidebar) return;
@@ -396,27 +497,63 @@ const App = () => {
   useEffect(() => {
     // Simulate actual app initialization with multiple stages
     const initializeApp = async () => {
-      // Stage 1: Initial setup (1000ms)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Stage 1: Initial setup (500ms)
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Stage 2: Load resources (1500ms)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Stage 2: Load resources (750ms)
+      await new Promise(resolve => setTimeout(resolve, 750));
       
-      // Stage 3: Initialize components (1500ms)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Stage 3: Initialize components (750ms)
+      await new Promise(resolve => setTimeout(resolve, 750));
       
-      // Stage 4: Setup themes and templates (1000ms)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Stage 4: Setup themes and templates (500ms)
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Stage 5: Finalize and prepare launch (1000ms)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Stage 5: Finalize and prepare launch (500ms)
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Total: 6 seconds for a comprehensive, professional loading experience
+      // Total: 3 seconds for a fast, responsive loading experience
       setIsLoading(false);
     };
 
     initializeApp();
   }, []);
+
+  // Dynamic sidebar height to match resume content
+  useEffect(() => {
+    const adjustSidebarToContentHeight = () => {
+      // For right sidebar (preview sidebar), use viewport height for scrollable content
+      if (showRightSidebar) {
+        const rightSidebar = document.querySelector('.desktop-sidebar.right-sidebar');
+        if (rightSidebar) {
+          rightSidebar.style.height = '100vh';
+          rightSidebar.style.bottom = '0';
+        }
+      }
+      
+      // For left sidebar, keep viewport height
+      if (showLeftSidebar) {
+        const leftSidebar = document.querySelector('.desktop-sidebar.left-sidebar');
+        if (leftSidebar) {
+          leftSidebar.style.height = '100vh';
+          leftSidebar.style.bottom = '0';
+        }
+      }
+    };
+
+    // Adjust when sidebar opens, content changes, or window resizes
+    if (showRightSidebar || showLeftSidebar) {
+      // Small delay to ensure DOM is updated
+      setTimeout(adjustSidebarToContentHeight, 100);
+    }
+    
+    // Also adjust on window resize
+    window.addEventListener('resize', adjustSidebarToContentHeight);
+    
+    return () => {
+      window.removeEventListener('resize', adjustSidebarToContentHeight);
+    };
+  }, [showRightSidebar, showLeftSidebar, resumeData, currentTheme]);
 
   // Theme change handler
   const handleThemeChange = (event) => {
@@ -594,15 +731,23 @@ body {
   max-width: none;
   margin: 0;
   color: var(--text-color);
+  /* Add proper padding to prevent content from sticking to borders */
+  padding: clamp(16px, 3vw, 24px);
+  box-sizing: border-box;
+  /* Ensure minimum spacing from container edges */
+  min-height: 100vh;
+  background: var(--surface-color, #ffffff);
 }
 
 .resume-header {
   background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
   color: var(--header-text);
-  padding: clamp(1rem, 4vw, 2rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   text-align: center;
   position: relative;
   overflow: hidden;
+  /* Header spans full width but maintains proper padding */
+  margin: 0 calc(-1 * clamp(16px, 3vw, 24px)) clamp(1rem, 3vw, 1.5rem) calc(-1 * clamp(16px, 3vw, 24px));
 }
 
 .resume-header::before {
@@ -1732,13 +1877,22 @@ Package created by: Resume Builder Pro
   };
 
   if (isLoading) {
-    // Determine which loading screen to show based on device type and display mode
-    if (isDesktop && !isFullscreen) {
-      return <DesktopLoadingScreen />;
-    } else if (isFullscreen || (isTablet && isFullscreen)) {
-      return <DesktopLoadingScreen isFullscreen={true} />;
+    // Use state-based orientation detection for consistent behavior
+    // This ensures orientation changes are properly detected and handled
+    
+    // Debug logging (remove in production)
+    console.log('Loading Screen Detection:', {
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      aspectRatio: (window.innerWidth / window.innerHeight).toFixed(2),
+      isLandscape,
+      screenType: isLandscape ? 'Desktop (Landscape)' : 'Mobile (Portrait)'
+    });
+    
+    if (isLandscape) {
+      return <DesktopLoadingScreen key="landscape-desktop" />;
     } else {
-      return <LoadingScreen isFullscreen={isFullscreen} />;
+      return <LoadingScreen key="portrait-mobile" />;
     }
   }
 
@@ -1787,21 +1941,6 @@ Package created by: Resume Builder Pro
             
             <div className="sidebar-content">
               <div className="sidebar-section">
-                <h4>Theme</h4>
-                <select
-                  value={currentTheme}
-                  onChange={handleThemeChange}
-                  className="sidebar-select"
-                >
-                  {themes.map(theme => (
-                    <option key={theme.value} value={theme.value}>
-                      {theme.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="sidebar-section">
                 <h4>Quick Actions</h4>
                 <div className="sidebar-buttons">
                   <button 
@@ -1838,23 +1977,6 @@ Package created by: Resume Builder Pro
                   </button>
                 </div>
               </div>
-
-              <div className="sidebar-section">
-                <h4>Download Website Package</h4>
-                <div className="sidebar-buttons">
-                  <button 
-                    className="sidebar-btn"
-                    onClick={() => {
-                      generateZipPackage();
-                      closeAllPanels();
-                    }}
-                    disabled={isGeneratingHTML}
-                  >
-                    <Download size={16} />
-                    {isGeneratingHTML ? 'Generating...' : 'Download ZIP Package'}
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1871,9 +1993,17 @@ Package created by: Resume Builder Pro
             <div className="preview-panel-header">
               <h3>Resume Preview</h3>
               <div className="preview-panel-controls">
-                <span className="theme-indicator-mobile">
-                  {themes.find(t => t.value === currentTheme)?.label}
-                </span>
+                <select
+                  value={currentTheme}
+                  onChange={handleThemeChange}
+                  className="theme-select-inline"
+                >
+                  {themes.map(theme => (
+                    <option key={theme.value} value={theme.value}>
+                      {theme.label}
+                    </option>
+                  ))}
+                </select>
                 <button 
                   className="preview-close"
                   onClick={closeAllPanels}
@@ -1882,18 +2012,33 @@ Package created by: Resume Builder Pro
                 </button>
               </div>
             </div>
+            
             <div className="preview-panel-content">
               <ResumeTemplate 
                 resumeData={resumeData}
                 theme={currentTheme}
               />
+              
+              {/* Download Overlay Button - Bottom Right */}
+              <button 
+                className="preview-download-overlay-mobile"
+                onClick={() => {
+                  generateZipPackage();
+                  closeAllPanels();
+                }}
+                disabled={isGeneratingHTML}
+                title={isGeneratingHTML ? 'Generating...' : 'Download ZIP Package'}
+              >
+                <Download size={16} />
+                {isGeneratingHTML && <div className="loading-spinner-mini"></div>}
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* Mobile Menu Buttons - Show for touch devices when header controls are hidden and no sidebars are open */}
-      {(isMobile || isTablet) && !hasMouseKeyboard && !showSidebar && !showPreview && !recentlyClosed && (
+      {(isMobile || isTablet) && !hasMouseKeyboard && !showSidebar && !showPreview && !showLeftSidebar && !showRightSidebar && !recentlyClosed && (
         <div className="mobile-menu-buttons">
           <button 
             className="mobile-menu-btn sidebar-trigger"
@@ -1940,10 +2085,13 @@ Package created by: Resume Builder Pro
         <>
           <div className="desktop-sidebar-overlay" onClick={closeDesktopSidebars}></div>
           <div className="desktop-sidebar left-sidebar">
-            <div className="desktop-sidebar-header">
-              <h3>Actions</h3>
+            <div className="sidebar-header">
+              <div className="sidebar-title">
+                <FileEdit size={24} />
+                <h3>Resume Builder Pro</h3>
+              </div>
               <button 
-                className="desktop-sidebar-close"
+                className="sidebar-close"
                 onClick={() => setShowLeftSidebar(false)}
               >
                 ×
@@ -1951,11 +2099,11 @@ Package created by: Resume Builder Pro
             </div>
             
             <div className="desktop-sidebar-content">
-              <div className="desktop-sidebar-section">
-                <h4>Data Management</h4>
-                <div className="desktop-sidebar-buttons">
+              <div className="sidebar-section">
+                <h4>Quick Actions</h4>
+                <div className="sidebar-buttons">
                   <button 
-                    className="desktop-sidebar-btn"
+                    className="sidebar-btn"
                     onClick={() => {
                       loadTestData();
                       setShowLeftSidebar(false);
@@ -1966,7 +2114,7 @@ Package created by: Resume Builder Pro
                   </button>
                   
                   <button 
-                    className="desktop-sidebar-btn"
+                    className="sidebar-btn"
                     onClick={() => {
                       resetForm();
                       setShowLeftSidebar(false);
@@ -1978,11 +2126,11 @@ Package created by: Resume Builder Pro
                 </div>
               </div>
 
-              <div className="desktop-sidebar-section">
+              <div className="sidebar-section">
                 <h4>Admin</h4>
-                <div className="desktop-sidebar-buttons">
+                <div className="sidebar-buttons">
                   <button 
-                    className="desktop-sidebar-btn"
+                    className="sidebar-btn"
                     onClick={() => {
                       setShowAdmin(!showAdmin);
                       setShowLeftSidebar(false);
@@ -2003,16 +2151,16 @@ Package created by: Resume Builder Pro
         <>
           <div className="desktop-sidebar-overlay" onClick={closeDesktopSidebars}></div>
           <div className="desktop-sidebar right-sidebar">
-            <div className="desktop-sidebar-header">
-              <div className="header-content">
+            <div className="sidebar-header">
+              <div className="sidebar-title">
+                <FileText size={24} />
                 <h3>Live Preview</h3>
+              </div>
+              <div className="sidebar-header-controls">
                 <select
                   value={currentTheme}
-                  onChange={(e) => {
-                    handleThemeChange(e);
-                    // Keep sidebar open for theme switching
-                  }}
-                  className="desktop-sidebar-theme-select"
+                  onChange={handleThemeChange}
+                  className="theme-select-header"
                 >
                   {themes.map(theme => (
                     <option key={theme.value} value={theme.value}>
@@ -2020,24 +2168,23 @@ Package created by: Resume Builder Pro
                     </option>
                   ))}
                 </select>
+                <button 
+                  className="sidebar-close"
+                  onClick={() => setShowRightSidebar(false)}
+                >
+                  ×
+                </button>
               </div>
-              <button 
-                className="desktop-sidebar-close"
-                onClick={() => setShowRightSidebar(false)}
-              >
-                ×
-              </button>
             </div>
             
             <div className="desktop-sidebar-content">
-              <div className="desktop-preview-wrapper">
-                <div className="desktop-preview-container" ref={previewContainerRef}>
-                  <ResumeTemplate 
-                    ref={previewRef}
-                    resumeData={resumeData}
-                    theme={currentTheme}
-                  />
-                </div>
+              <h4>Preview</h4>
+              <div className="desktop-preview-container" ref={previewContainerRef}>
+                <ResumeTemplate 
+                  ref={previewRef}
+                  resumeData={resumeData}
+                  theme={currentTheme}
+                />
                 
                 {/* Download Overlay Button */}
                 <button 
@@ -2049,7 +2196,6 @@ Package created by: Resume Builder Pro
                   title={isGeneratingHTML ? 'Generating...' : 'Download ZIP Package'}
                 >
                   <Download size={20} />
-                  {isGeneratingHTML && <div className="loading-spinner"></div>}
                 </button>
               </div>
             </div>
@@ -2064,80 +2210,17 @@ Package created by: Resume Builder Pro
         </div>
       )}
 
-      {/* Header - Show logo and title on all devices, hide controls on touch devices */}
-      <header className={`app-header ${
-        (isMobile || isTablet) && (showSidebar || showPreview) 
-        ? 'hidden' : ''
-      }`}>
-        <div className="container">
-          <div className="header-content">
-            <div className="title-row">
-              <div className="title-content">
-                <FileEdit className="lucide" size={32} />
-                <h1>Resume Builder Pro</h1>
-              </div>
+      {/* Minimal Header with App Name and Logo */}
+      <header className="app-header-minimal">
+        <div className="header-brand">
+          <div className="logo-container">
+            <div className="logo-icon-group">
+              <FileEdit className="logo-icon primary-icon" size={24} />
+              <Star className="logo-icon accent-icon" size={16} />
+              <Sparkles className="logo-icon sparkle-icon" size={12} />
             </div>
-            
-            {((!isMobile && !isTablet) || hasMouseKeyboard) && !isDesktop && (
-              <div className="controls-row">
-                <div className="theme-selector">
-                  <label htmlFor="theme-select">Theme:</label>
-                  <select
-                    id="theme-select"
-                    value={currentTheme}
-                    onChange={handleThemeChange}
-                  >
-                    {themes.map(theme => (
-                      <option key={theme.value} value={theme.value}>
-                        {theme.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="action-buttons">
-                  <button 
-                    className="btn"
-                    onClick={loadTestData}
-                    title="Load Test Data"
-                  >
-                    <Users size={16} />
-                    <span>Test Data</span>
-                  </button>
-
-                  <button 
-                    className="btn"
-                    onClick={resetForm}
-                    title="Reset Form"
-                  >
-                    <RotateCcw size={16} />
-                    <span>Reset</span>
-                  </button>
-
-                  <button 
-                    className="btn"
-                    onClick={() => setShowAdmin(!showAdmin)}
-                    title="Admin Panel"
-                  >
-                    <Settings size={16} />
-                    <span className="admin-text">Admin</span>
-                  </button>
-                </div>
-
-                <div className="download-options">
-                  <button 
-                    className="btn"
-                    onClick={() => generateZipPackage()}
-                    disabled={isGeneratingHTML}
-                    title="Download Complete Website Package"
-                  >
-                    <Download size={16} />
-                    <span>{isGeneratingHTML ? 'Generating Package...' : 'Download ZIP Package'}</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
+          <h1 className="app-title">Resume Builder Pro</h1>
         </div>
       </header>
 
