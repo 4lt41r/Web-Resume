@@ -72,7 +72,7 @@ const SwipeHandler = ({ onSwipeLeft, onSwipeRight, threshold = 100, restraint = 
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [onSwipeLeft, onSwipeRight, threshold, restraint, isTablet]);
+  }, [onSwipeLeft, onSwipeRight, threshold, restraint, allowedTime, isTablet]);
 
   return null; // This component doesn't render anything
 };

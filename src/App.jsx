@@ -29,7 +29,8 @@ const App = () => {
   const previewRef = useRef(null);
   const sidebarRef = useRef(null);
   const previewPanelRef = useRef(null);
-  const desktopPreviewRef = useRef(null);
+  const formRef = useRef(null);
+  const previewContainerRef = useRef(null);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
@@ -283,7 +284,6 @@ const App = () => {
     // Enhanced sensitivity settings for tablets and mobile
     const minSwipeDistance = isTablet ? 60 : 50; // Lower threshold for tablets for easier gestures
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
     
     // Check if it's a horizontal swipe (more horizontal than vertical)
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
@@ -355,31 +355,42 @@ const App = () => {
     setShowRightSidebar(false);
   };
 
-  // Body scroll lock effect for desktop sidebar
+  // Synchronized scrolling between form and preview
   useEffect(() => {
-    if (isDesktop && showRightSidebar) {
-      document.body.classList.add('sidebar-open');
-      
-      // Scroll preview to top when sidebar opens
-      if (desktopPreviewRef.current) {
-        desktopPreviewRef.current.scrollTop = 0;
-      }
-    } else {
-      document.body.classList.remove('sidebar-open');
-    }
+    if (!isDesktop || !showRightSidebar) return;
 
-    // Cleanup on unmount
+    const formElement = formRef.current;
+    const previewElement = previewContainerRef.current;
+
+    if (!formElement || !previewElement) return;
+
+    let isScrolling = false;
+
+    const syncScroll = (source, target) => {
+      if (isScrolling) return;
+      isScrolling = true;
+      
+      const sourceScrollRatio = source.scrollTop / (source.scrollHeight - source.clientHeight);
+      const targetScrollTop = sourceScrollRatio * (target.scrollHeight - target.clientHeight);
+      
+      target.scrollTop = targetScrollTop;
+      
+      setTimeout(() => {
+        isScrolling = false;
+      }, 50);
+    };
+
+    const handleFormScroll = () => syncScroll(formElement, previewElement);
+    const handlePreviewScroll = () => syncScroll(previewElement, formElement);
+
+    formElement.addEventListener('scroll', handleFormScroll, { passive: true });
+    previewElement.addEventListener('scroll', handlePreviewScroll, { passive: true });
+
     return () => {
-      document.body.classList.remove('sidebar-open');
+      formElement.removeEventListener('scroll', handleFormScroll);
+      previewElement.removeEventListener('scroll', handlePreviewScroll);
     };
   }, [isDesktop, showRightSidebar]);
-
-  // Reset preview scroll when resume data changes
-  useEffect(() => {
-    if (desktopPreviewRef.current && showRightSidebar) {
-      desktopPreviewRef.current.scrollTop = 0;
-    }
-  }, [resumeData, showRightSidebar]);
 
   // Initialize loading screen with realistic delay
   useEffect(() => {
@@ -2020,7 +2031,7 @@ Package created by: Resume Builder Pro
             
             <div className="desktop-sidebar-content">
               <div className="desktop-preview-wrapper">
-                <div className="desktop-preview-container" ref={desktopPreviewRef}>
+                <div className="desktop-preview-container" ref={previewContainerRef}>
                   <ResumeTemplate 
                     ref={previewRef}
                     resumeData={resumeData}
@@ -2142,7 +2153,7 @@ Package created by: Resume Builder Pro
           ) : (
             <div className="resume-builder">
               {/* Form Section */}
-              <section className="form-section">
+              <section className="form-section" ref={formRef}>
                 <ResumeForm 
                   resumeData={resumeData}
                   setResumeData={setResumeData}
